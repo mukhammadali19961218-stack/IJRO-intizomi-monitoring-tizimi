@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ijro_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ijro_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ijro_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-ijro_dashboard}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ijro_user} -d ${POSTGRES_DB:-ijro_dashboard}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ijro_dashboard_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-ijro_user}:${POSTGRES_PASSWORD:-ijro_secure_password_2026}@postgres:5432/${POSTGRES_DB:-ijro_dashboard}
+      - SECRET_KEY=${SECRET_KEY:-ijro-production-jwt-secret-key-change-in-prod}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - VIEWER_USERNAME=${VIEWER_USERNAME:-viewer}
+      - VIEWER_PASSWORD=${VIEWER_PASSWORD:-viewer123}
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persistent storage for uploaded Excel files & employee photos (Requirements 3 & 13)
+      - persistent_uploads:/app/data/uploads
+      - persistent_tasks:/app/data/tasks
+
+volumes:
+  postgres_data:
+    name: ijro_postgres_data
+  persistent_uploads:
+    name: ijro_persistent_uploads
+  persistent_tasks:
+    name: ijro_persistent_tasks

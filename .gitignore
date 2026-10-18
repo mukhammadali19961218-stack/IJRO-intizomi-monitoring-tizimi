@@ -1,0 +1,50 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+backend/.venv/
+venv/
+.venv/
+
+# Node
+frontend/node_modules/
+node_modules/
+
+# Build
+frontend/dist/
+dist/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
+
+# Operational Excel files
+data/**/*.xlsx
+data/**/*.xls
+~$*.xlsx
+~$*.xls
+
+# Uploaded employee photos
+data/uploads/
+uploads/
+
+# Runtime imported files
+data/imports/
+data/tasks/
+
+# Logs
+*.log
+logs/
+
+# IDE / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
